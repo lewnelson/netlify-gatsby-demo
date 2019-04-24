@@ -1,5 +1,5 @@
 ---
 templateKey: index-page
-title: Hello everyone!
+title: Hello to the world!
 ---
 
