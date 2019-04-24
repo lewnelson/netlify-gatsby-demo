@@ -3,7 +3,6 @@ executors:
   main:
     docker:
       - image: 'circleci/node:10'
-    working_directory: /tmp
 
 jobs:
   install_dependencies:
