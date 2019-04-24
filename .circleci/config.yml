@@ -26,7 +26,13 @@ jobs:
       - restore_cache:
           keys:
             - node-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
-      - run: npm run build
+      - run:
+          name: Building static site
+          command: npm run build
+      - persist_to_workspace:
+          root: public
+          paths:
+            - "*"
   test:
     executor: main
     steps:
@@ -34,8 +40,12 @@ jobs:
       - restore_cache:
           keys:
             - node-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
-      - run: npm run lint
-      - run: npm test
+      - run:
+          name: Linting javascript
+          command: npm run lint
+      - run:
+          name: Running automated tests
+          command: npm test
   deploy:
     executor: main
     steps:
@@ -43,10 +53,19 @@ jobs:
       - restore_cache:
           keys:
             - node-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+      - attach_workspace:
+          at: public
       - add_ssh_keys:
           fingerprints:
             - "07:39:26:3f:6d:21:0d:8b:76:ef:fa:4a:0b:e9:5c:2c"
-      - run: npm run deploy
+      - run:
+          name: Setup git config
+          command: |
+                git config user.email "ci-build@lewnelson.com"
+                git config user.name "ci-build"
+      - run:
+          name: Deploying to GitHub pages
+          command: npm run deploy:ci
 
 workflows:
   version: 2
