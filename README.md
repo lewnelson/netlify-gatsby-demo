@@ -1,5 +1,10 @@
 <!-- AUTO-GENERATED-CONTENT:START (STARTER) -->
-<img src="https://circleci.com/gh/lewnelson/netlify-gatsby-demo/tree/master.svg?style=svg" alt="https://circleci.com/gh/lewnelson/netlify-gatsby-demo/tree/master" />
+<a href="https://circleci.com/gh/lewnelson/netlify-gatsby-demo" target="_blank" title="CircleCI Production Status">
+  <img src="https://circleci.com/gh/lewnelson/netlify-gatsby-demo/tree/master.svg?style=svg" alt="CircleCI Production Status" />
+</a>
+<a href="https://app.netlify.com/sites/romantic-spence-daddaa/deploys" target="_blank" title="Netlify Staging Status">
+  <img src="https://api.netlify.com/api/v1/badges/c1c8f9d4-5213-4e73-8032-2d2f829bfd88/deploy-status" alt="Netlify Staging Status" />
+</a>
 <p align="center">
   <a href="https://www.gatsbyjs.org">
     <img alt="Gatsby" src="https://www.gatsbyjs.org/monogram.svg" width="60" />
