@@ -24,7 +24,7 @@ const IndexPage = () => (
         </header>
       )}
     />
-    <p>Welcome to your new Gatsby site.</p>
+    <p>Welcome to your new Gatsby site here it is.</p>
     <p>Now go build something great.</p>
     <div style={{ maxWidth: `300px`, marginBottom: `1.45rem` }}>
       <Image />
