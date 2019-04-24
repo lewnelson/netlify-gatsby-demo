@@ -9,6 +9,7 @@ jobs:
   install_dependencies:
     executor: main
     steps:
+      - checkout
       - restore_cache:
           keys:
             - node-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
