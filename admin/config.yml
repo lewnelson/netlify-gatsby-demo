@@ -12,4 +12,4 @@ collections:
         name: "index"
         fields:
           - {label: "Template Key", name: "templateKey", widget: "hidden", default: "index-page"}
-          - {label: Title, name: title, widget: string, pattern: ".{1,}"}
+          - {label: Title, name: title, widget: string}
