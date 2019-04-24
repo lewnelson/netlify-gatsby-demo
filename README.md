@@ -1,6 +1,10 @@
-<!-- AUTO-GENERATED-CONTENT:START (STARTER) -->
+<p>Production status</p>
 <a href="https://circleci.com/gh/lewnelson/netlify-gatsby-demo" target="_blank" title="CircleCI Production Status">
   <img src="https://circleci.com/gh/lewnelson/netlify-gatsby-demo/tree/master.svg?style=svg" alt="CircleCI Production Status" />
+</a>
+<p>Staging status</p>
+<a href="https://circleci.com/gh/lewnelson/netlify-gatsby-demo/tree/staging" target="_blank" title="CircleCI Staging Status">
+  <img src="https://circleci.com/gh/lewnelson/netlify-gatsby-demo/tree/staging.svg?style=svg" alt="CircleCI Staging Status" />
 </a>
 <a href="https://app.netlify.com/sites/romantic-spence-daddaa/deploys" target="_blank" title="Netlify Staging Status">
   <img src="https://api.netlify.com/api/v1/badges/c1c8f9d4-5213-4e73-8032-2d2f829bfd88/deploy-status" alt="Netlify Staging Status" />
@@ -11,93 +15,62 @@
   </a>
 </p>
 <h1 align="center">
-  Gatsby's default starter
+  Gatsby Netlify starter with CircleCI and GitHub pages
 </h1>
 
-Kick off your project with this default boilerplate. This starter ships with the main Gatsby configuration files you might need to get up and running blazing fast with the blazing fast app generator for React.
+Kick off your project with this default boilerplate. This starter ships with the default Gatsby starter as well as some CircleCI configuration and Netlify setup.
+
+The workflow for this boilerplate is to deploy production sites to GitHub pages and use Netlify for a staging environment.
 
 _Have another more specific idea? You may want to check out our vibrant collection of [official and community-created starters](https://www.gatsbyjs.org/docs/gatsby-starters/)._
 
-## 🚀 Quick start
+## First things first
 
-1.  **Create a Gatsby site.**
+### Linking Netlify
 
-    Use the Gatsby CLI to create a new site, specifying the default starter.
+You'll need to link the git project on your Netlify CMS account in order for this to work. From there you'll need to enable Git Gateway for authentication.
 
-    ```sh
-    # create a new Gatsby site using the default starter
-    gatsby new my-default-starter https://github.com/gatsbyjs/gatsby-starter-default
-    ```
+You'll also need to update the build and deploy settings:
+* The build command needs to be set to `npm run build` or `gatsby build`
+* The publish directory should be `public/`
+* The production branch should be set to `staging`
+* Set deploy previews to whatever you wish
+* Only allow deploys on the production branch
 
-1.  **Start developing.**
+### Linking CircleCI
 
-    Navigate into your new site’s directory and start it up.
+Create a CircleCI account and link it with GitHub. You can then choose what repositories CircleCI can monitor. You'll also want to navigate to the VCS settings and allow GitHub to manage checks. This means you will see the status of the CI jobs on pull requests.
 
-    ```sh
-    cd my-default-starter/
-    gatsby develop
-    ```
+Lastly as we are deploying to GitHub pages we'll need to allow CircleCI write access to our repo. You can do this in the project settings in CircleCI and add the private key you will use in your CI environment. If you are having issues uploading the private key ensure you create your key using this command:
+```
+ssh-keygen -f ~/.ssh/circleci_writeable -C "CircleCI writeable" -m PEM -t rsa
+```
+feel free to change the path and context.
 
-1.  **Open the source code and start editing!**
+### GitHub repo settings
 
-    Your site is now running at `http://localhost:8000`!
+* Add the deployment key from the public key generated when creating the key pair used on CircleCI
+* Set the default branch to staging
+* Add a rule to protect the master branch as well as the staging branch
 
-    _Note: You'll also see a second link: _`http://localhost:8000/___graphql`_. This is a tool you can use to experiment with querying your data. Learn more about using this tool in the [Gatsby tutorial](https://www.gatsbyjs.org/tutorial/part-five/#introducing-graphiql)._
+### Update CircleCI config.yml
 
-    Open the `my-default-starter` directory in your code editor of choice and edit `src/pages/index.js`. Save your changes and the browser will update in real time!
+```
+.circleci/config.yml
+```
+* Change the SSH key fingerprint in the deployment job to match the fingerprint of the key pair you created above for deployments to GitHub pages.
+* Update the username and email in the git configuration to something appropriate
 
-## 🧐 What's inside?
+### GitHub pages setup
 
-A quick look at the top-level files and directories you'll see in a Gatsby project.
+The `CNAME` file lives inside `static/CNAME` this is used for GitHub pages DNS records. Update accordingly. If you wish to use the `<username>.github.io/<repo>` URL instead of a custom domain some extra configuration will be required.
 
-    .
-    ├── node_modules
-    ├── src
-    ├── .gitignore
-    ├── .prettierrc
-    ├── gatsby-browser.js
-    ├── gatsby-config.js
-    ├── gatsby-node.js
-    ├── gatsby-ssr.js
-    ├── LICENSE
-    ├── package-lock.json
-    ├── package.json
-    └── README.md
+## After setup
 
-1.  **`/node_modules`**: This directory contains all of the modules of code that your project depends on (npm packages) are automatically installed.
+Hopefully now you have everything setup. You can now visit the staging site hosted on Netlify and visit the `/admin` page to access the CMS. Any updates you publish will be reflected on the `staging` branch. Once you are happy with the changes create a pull request from staging -> master. Once the build has passed merge the PR. This will trigger a production build on CircleCI which will deploy to GitHub pages. As part of the deployment process the `/admin` folder is omitted meaning the CMS is unavailable in production.
 
-2.  **`/src`**: This directory will contain all of the code related to what you will see on the front-end of your site (what you see in the browser) such as your site header or a page template. `src` is a convention for “source code”.
+Any features etc. can be branched from staging and merged via PR's to staging resulting in the Netlify staging branch updating and presuming you allow deployments for PR's you will also get sites for each PR you create hosted on Netlify.
 
-3.  **`.gitignore`**: This file tells git which files it should not track / not maintain a version history for.
+## Testing
 
-4.  **`.prettierrc`**: This is a configuration file for [Prettier](https://prettier.io/). Prettier is a tool to help keep the formatting of your code consistent.
-
-5.  **`gatsby-browser.js`**: This file is where Gatsby expects to find any usage of the [Gatsby browser APIs](https://www.gatsbyjs.org/docs/browser-apis/) (if any). These allow customization/extension of default Gatsby settings affecting the browser.
-
-6.  **`gatsby-config.js`**: This is the main configuration file for a Gatsby site. This is where you can specify information about your site (metadata) like the site title and description, which Gatsby plugins you’d like to include, etc. (Check out the [config docs](https://www.gatsbyjs.org/docs/gatsby-config/) for more detail).
-
-7.  **`gatsby-node.js`**: This file is where Gatsby expects to find any usage of the [Gatsby Node APIs](https://www.gatsbyjs.org/docs/node-apis/) (if any). These allow customization/extension of default Gatsby settings affecting pieces of the site build process.
-
-8.  **`gatsby-ssr.js`**: This file is where Gatsby expects to find any usage of the [Gatsby server-side rendering APIs](https://www.gatsbyjs.org/docs/ssr-apis/) (if any). These allow customization of default Gatsby settings affecting server-side rendering.
-
-9.  **`LICENSE`**: Gatsby is licensed under the MIT license.
-
-10. **`package-lock.json`** (See `package.json` below, first). This is an automatically generated file based on the exact versions of your npm dependencies that were installed for your project. **(You won’t change this file directly).**
-
-11. **`package.json`**: A manifest file for Node.js projects, which includes things like metadata (the project’s name, author, etc). This manifest is how npm knows which packages to install for your project.
-
-12. **`README.md`**: A text file containing useful reference information about your project.
-
-## 🎓 Learning Gatsby
-
-Looking for more guidance? Full documentation for Gatsby lives [on the website](https://www.gatsbyjs.org/). Here are some places to start:
-
-- **For most developers, we recommend starting with our [in-depth tutorial for creating a site with Gatsby](https://www.gatsbyjs.org/tutorial/).** It starts with zero assumptions about your level of ability and walks through every step of the process.
-
-- **To dive straight into code samples, head [to our documentation](https://www.gatsbyjs.org/docs/).** In particular, check out the _Guides_, _API Reference_, and _Advanced Tutorials_ sections in the sidebar.
-
-## 💫 Deploy
-
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/gatsbyjs/gatsby-starter-default)
-
-<!-- AUTO-GENERATED-CONTENT:END -->
+This boilerplate includes unit testing using Jest. Any files following the `*.test.js` naming convention will be run on `npm test`.
