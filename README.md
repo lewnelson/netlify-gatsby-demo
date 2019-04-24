@@ -1,4 +1,5 @@
 <!-- AUTO-GENERATED-CONTENT:START (STARTER) -->
+<img src="https://circleci.com/gh/lewnelson/netlify-gatsby-demo/tree/master.svg?style=svg" alt="https://circleci.com/gh/lewnelson/netlify-gatsby-demo/tree/master" />
 <p align="center">
   <a href="https://www.gatsbyjs.org">
     <img alt="Gatsby" src="https://www.gatsbyjs.org/monogram.svg" width="60" />
