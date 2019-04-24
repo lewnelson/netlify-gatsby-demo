@@ -67,6 +67,3 @@ yarn-error.log
 .pnp.js
 # Yarn Integrity file
 .yarn-integrity
-
-# Netlify CMS admin to be ignored in production
-static/admin
