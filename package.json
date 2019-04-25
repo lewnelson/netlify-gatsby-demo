@@ -54,7 +54,8 @@
     "serve": "gatsby serve",
     "lint": "eslint src/",
     "lint:changed": "eslint",
-    "test": "TZ='UTC' jest"
+    "test": "TZ='UTC' jest",
+    "postinstall": "./scripts/post-install.sh"
   },
   "repository": {
     "type": "git",
