@@ -77,9 +77,8 @@ jobs:
       - run:
           name: Create staging -> master PR
           command: |
-                BODY="Automated PR generated on changes to staging for staging -> master"
                 curl -u "$GITHUB_USERNAME:$GITHUB_TOKEN" \
-                  -d '{"title":"Staging -> Master automated PR", "head":"staging", "base":"master", "body":"$BODY", "maintainer_can_modify":true,"draft":false}' \
+                  -d '{"title":"Staging -> Master automated PR", "head":"staging", "base":"master", "body":"Automated PR generated on changes to staging for staging -> master", "maintainer_can_modify":true,"draft":false}' \
                   -H "Content-Type: application/json" \
                   -X POST \
                   https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pulls
