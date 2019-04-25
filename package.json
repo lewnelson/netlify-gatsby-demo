@@ -48,7 +48,7 @@
     "build": "gatsby build",
     "develop": "gatsby develop",
     "deploy": "npm run build && npm run deploy:ci",
-    "deploy:ci": "gh-pages -d public -b gh-pages",
+    "deploy:ci": "./scripts/deploy.sh",
     "format": "prettier --write src/**/*.{js,jsx}",
     "start": "npm run develop",
     "serve": "gatsby serve",
