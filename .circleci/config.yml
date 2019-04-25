@@ -70,6 +70,19 @@ jobs:
       - run:
           name: Deploying to GitHub pages
           command: npm run deploy:ci
+  create_production_pr:
+    executor: main
+    steps:
+      - checkout
+      - run:
+          name: Create staging -> master PR
+          command: |
+                BODY="Automated PR generated on changes to staging for staging -> master"
+                curl -u "$GITHUB_USERNAME:$GITHUB_TOKEN" \
+                  -d '{"title":"Staging -> Master automated PR", "head":"staging", "base":"master", "body":"$BODY", "maintainer_can_modify":true,"draft":false}' \
+                  -H "Content-Type: application/json" \
+                  -X POST \
+                  https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pulls
 
 workflows:
   version: 2
@@ -94,6 +107,14 @@ workflows:
             branches:
               ignore:
                 - gh-pages
+      - create_production_pr:
+          requires:
+            - build
+            - test
+          filters:
+            branches:
+              only:
+                - staging
       - deploy:
           requires:
             - build
