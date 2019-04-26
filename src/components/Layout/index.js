@@ -19,7 +19,7 @@ const Layout = ({ children }) => {
   React.useEffect(() => {
     const { protocol, slashes, host, hash } = parseURL(window.location.href)
     const token = (hash.replace(/^#/, '').split('&').map(p => p.split('=')).filter(p => p[0] === 'invite_token').shift() || [])[1]
-    if (token) window.history.pushState({}, '', `${protocol}${slashes && '//'}${host}/admin/#/invite_token=${token}`)
+    if (token) window.location.href = `${protocol}${slashes && '//'}${host}/admin/#/invite_token=${token}`
   }, [])
 
   return (
