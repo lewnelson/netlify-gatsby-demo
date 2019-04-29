@@ -15,7 +15,8 @@
       "afterEach": true,
       "it": true,
       "requestAnimationFrame": true,
-      "Image": true
+      "Image": true,
+      "fetch": true
     }
   }
   
