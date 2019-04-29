@@ -47,7 +47,7 @@ class Meetups extends Component {
   }
 
   async populateEvents () {
-    const { results, callback } = await fetchUpcomingEvents('run')
+    const { results, callback } = await fetchUpcomingEvents('cardano')
     this.setState({ fetching: false })
     if (results.events) this.setState({ authenticated: true, meetups: results.events })
     if (callback) this.fetchNextEventsBatch(callback)

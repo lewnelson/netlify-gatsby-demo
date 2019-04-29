@@ -54,7 +54,7 @@ export async function fetchUpcomingEvents (text) {
     return response
   } catch (err) {
     console.log('error occured', err)
-    return null
+    return { results: {}, callback: null }
   }
 }
 

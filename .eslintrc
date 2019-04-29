@@ -15,6 +15,7 @@
       "afterEach": true,
       "it": true,
       "requestAnimationFrame": true,
+      "cancelAnimationFrame": true,
       "Image": true,
       "fetch": true
     }
