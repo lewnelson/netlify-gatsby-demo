@@ -3,6 +3,11 @@ import PropTypes from 'prop-types'
 import * as THREE from 'three'
 import OrbitControls from 'three-orbitcontrols'
 
+const MIN_ZOOM_SPEED = 0.03
+const MAX_ZOOM_SPEED = 0.5
+const MIN_ROTATE_SPEED = 0.2
+const MAX_ROTATE_SPEED = 1.0
+
 export default class Scene extends Component {
   static propTypes = {
     width: PropTypes.string,
@@ -46,23 +51,38 @@ export default class Scene extends Component {
   }
 
   initializeOrbits () {
+    this.controls.enablePan = false
+    this.controls.enableDamping = true
+    this.controls.dampingFactor = 1.6
     this.controls.rotateSpeed = 1.0
-    this.controls.zoomSpeed = 1.2
-    this.controls.panSpeed = 0.8
-    this.controls.minDistance = 0.65
-    this.controls.maxPolarAngle = Math.PI - ((Math.PI / 180) * 20)
-    this.controls.minPolarAngle = (Math.PI / 180) * 20
+    this.controls.zoomSpeed = 0.5
+    this.controls.minDistance = 38
+    this.controls.maxDistance = 90
+    this.controls.maxPolarAngle = Math.PI - ((Math.PI / 180) * 35)
+    this.controls.minPolarAngle = (Math.PI / 180) * 35
   }
 
   initializeCamera () {
     this.camera.position.x = 0
     this.camera.position.y = 0
-    this.camera.position.z = 1
+    this.camera.position.z = 80
+  }
+
+  updateControlSpeeds () {
+    const distance = this.camera.position.distanceTo(new THREE.Vector3())
+    const multiplier = (distance - this.controls.minDistance) / (this.controls.maxDistance - this.controls.minDistance)
+    const zoomSpeed = MIN_ZOOM_SPEED + (multiplier * (MAX_ZOOM_SPEED - MIN_ZOOM_SPEED))
+    const rotateSpeed = MIN_ROTATE_SPEED + (multiplier * (MAX_ROTATE_SPEED - MIN_ROTATE_SPEED))
+    this.controls.zoomSpeed = zoomSpeed
+    this.controls.rotateSpeed = rotateSpeed
   }
 
   animate = () => {
+    const now = Date.now()
+    this.updateControlSpeeds()
+    this.controls.update()
     this.frameId = window.requestAnimationFrame(this.animate)
-    this.sceneRefs.forEach(ref => ref.animate && ref.animate({ sceneObjects: this.sceneRefs, camera: this.camera }))
+    this.sceneRefs.forEach(ref => ref.animate && ref.animate({ sceneObjects: this.sceneRefs, camera: this.camera, t: now }))
     this.renderer.render(this.scene, this.camera)
   }
 

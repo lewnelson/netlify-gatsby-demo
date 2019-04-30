@@ -2,20 +2,20 @@ import { Component } from 'react'
 import PropTypes from 'prop-types'
 import * as THREE from 'three'
 
-const PULSE_SCALE = 0.05
-const PULSE_INITIAL_RADIUS = 0.004
-const MAX_PULSE_RADIUS = 0.016
-const PULSE_STEP = (MAX_PULSE_RADIUS - PULSE_INITIAL_RADIUS) / 100
+const PULSE_SCALE = 0.15
+const LIGHT_OFFSET = 2
 
 export default class GlobeMarker extends Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
     lat: PropTypes.number.isRequired,
     lon: PropTypes.number.isRequired,
-    globe: PropTypes.string.isRequired
+    globe: PropTypes.string.isRequired,
+    radius: PropTypes.number.isRequired,
+    dropDistance: PropTypes.number.isRequired
   }
 
-  getInitialPosition (radius) {
+  getFinalPosition (radius) {
     const { lat, lon } = this.props
     const phi = (90 - lat) * (Math.PI / 180)
     const theta = (lon + 180) * (Math.PI / 180)
@@ -26,19 +26,30 @@ export default class GlobeMarker extends Component {
     return new THREE.Vector3(x, y, z)
   }
 
+  getPosition (distance) {
+    const raycaster = new THREE.Raycaster()
+    raycaster.set(new THREE.Vector3(), this.finalPosition.normalize())
+    let pos = new THREE.Vector3()
+    raycaster.ray.at(distance, pos)
+    return pos
+  }
+
   initialise ({ sceneObjects }) {
     this.pulse = true
     this.pulseRings = []
-    const globe = sceneObjects.filter(obj => obj.getId() === this.props.globe).shift()
-    if (!globe) throw new Error(`Globe ${this.props.globe} does not exist within the scene`)
+    this.globe = sceneObjects.filter(obj => obj.getId() === this.props.globe).shift()
+    if (!this.globe) throw new Error(`Globe ${this.props.globe} does not exist within the scene`)
 
-    const positionVector = this.getInitialPosition(globe.getRadius())
-    const pointGeometry = new THREE.SphereGeometry(0.004, 10, 10)
-    const redMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 })
-    this.obj = new THREE.Mesh(pointGeometry, redMaterial)
-    this.obj.position.x = positionVector.x
-    this.obj.position.y = positionVector.y
-    this.obj.position.z = positionVector.z
+    this.distance = this.globe.getRadius() + this.props.dropDistance
+    this.finalPosition = this.getFinalPosition(this.globe.getRadius())
+    const pointGeometry = new THREE.ConeGeometry(this.props.radius, this.props.radius * 4, 8, 1)
+    const material = new THREE.MeshBasicMaterial({ color: 0x1fc1c3 })
+    this.obj = new THREE.Mesh(pointGeometry, material)
+
+    const position = this.getPosition(this.distance)
+    this.obj.position.copy(position)
+    this.obj.lookAt(new THREE.Vector3())
+    this.obj.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2)
   }
 
   getObj () {
@@ -49,9 +60,17 @@ export default class GlobeMarker extends Component {
     return this.props.id
   }
 
+  createLighting () {
+    this.lighting = new THREE.PointLight(0xEF131D, 6, 5)
+    this.lighting.position.copy(this.getPosition(this.distance + LIGHT_OFFSET))
+    this.lighting.lookAt(new THREE.Vector3())
+    this.obj.parent.add(this.lighting)
+  }
+
   createPulseRing () {
-    const geometry = new THREE.RingGeometry(PULSE_INITIAL_RADIUS, PULSE_INITIAL_RADIUS + (PULSE_INITIAL_RADIUS * PULSE_SCALE), 24, 1)
-    const material = new THREE.MeshBasicMaterial({ color: 0xffff00 })
+    const { radius } = this.props
+    const geometry = new THREE.RingGeometry(radius, radius + (radius * PULSE_SCALE), 24, 1)
+    const material = new THREE.MeshBasicMaterial({ color: 0x1fc1c3 })
     material.side = THREE.BackSide
     const pulseRing = new THREE.Mesh(geometry, material)
     this.obj.parent.add(pulseRing)
@@ -62,12 +81,14 @@ export default class GlobeMarker extends Component {
   }
 
   animatePulse () {
+    const { radius } = this.props
     if (this.pulseRings.length < 1) return
     this.pulseRings.forEach((pulseRing, index) => {
-      const newRadius = pulseRing.geometry.parameters.innerRadius + PULSE_STEP
+      const newRadius = pulseRing.geometry.parameters.innerRadius + (radius * 3 / 100)
       const geometry = new THREE.RingGeometry(newRadius, newRadius + (newRadius * PULSE_SCALE), 24, 1)
+      pulseRing.geometry.dispose()
       pulseRing.geometry = geometry
-      if (pulseRing.geometry.parameters.innerRadius > MAX_PULSE_RADIUS) {
+      if (pulseRing.geometry.parameters.innerRadius > radius * 4) {
         this.obj.parent.remove(pulseRing)
         this.pulseRings.splice(index, 1)
         if (this.pulseRings.length < 1) {
@@ -80,7 +101,21 @@ export default class GlobeMarker extends Component {
     })
   }
 
-  animate () {
+  animateDrop (t) {
+    if (this.dropped) return
+    if (!this.dropStartTime) this.dropStartTime = t
+    this.distance -= 0.5 * 0.08 * Math.pow((t - this.dropStartTime) / 1000, 2)
+    const newPosition = this.getPosition(this.distance)
+    this.obj.position.copy(newPosition)
+    if (this.globe.getObj().geometry.boundingSphere.containsPoint(newPosition)) {
+      this.distance = this.globe.getRadius()
+      this.dropped = true
+      this.createLighting()
+      this.obj.position.copy(this.getPosition(this.distance + this.props.radius * 2))
+    }
+  }
+
+  animatePulseRings () {
     if (this.pulseRings.length < 1 && this.pulse) {
       this.createPulseRing()
       setTimeout(() => {
@@ -92,6 +127,11 @@ export default class GlobeMarker extends Component {
     } else {
       this.animatePulse()
     }
+  }
+
+  animate ({ t }) {
+    this.animateDrop(t)
+    if (this.dropped) this.animatePulseRings()
   }
 
   destroy () {

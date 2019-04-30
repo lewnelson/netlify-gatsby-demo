@@ -63,12 +63,12 @@ export default class SpotLight extends Component {
     const raycaster = new THREE.Raycaster()
     raycaster.setFromCamera(new THREE.Vector2(), camera)
     let pos = new THREE.Vector3()
-    raycaster.ray.at(-2, pos)
+    raycaster.ray.at(-45, pos)
     this.obj.position.copy(pos)
 
     // Restrict movement on Y axis
-    if (this.obj.position.y > 0.3) this.obj.position.y = 0.3
-    if (this.obj.position.y < -0.3) this.obj.position.y = -0.3
+    if (this.obj.position.y > 35) this.obj.position.y = 35
+    if (this.obj.position.y < -35) this.obj.position.y = -35
 
     // Move light rotation ahead of camera by 30 degress
     const origin = new THREE.Vector3()

@@ -20,7 +20,20 @@ const MapContainer = styled.div`
 class SavedMeetupsGlobe extends Component {
   constructor (props) {
     super(props)
-    this.state = { globeReady: false }
+    this.state = { globeReady: false, meetups: [] }
+  }
+
+  addMeetupsBatch = () => {
+    const nextMeetupsStartIndex = this.state.meetups.length
+    const n = (Math.random() * 3) + 1
+    const nextMeetups = meetups.slice().splice(nextMeetupsStartIndex, n)
+    this.setState({ meetups: [ ...this.state.meetups, ...nextMeetups ] })
+    if (meetups.length === this.state.meetups.length) return
+    setTimeout(this.addMeetupsBatch, (Math.random() * 300) + 150)
+  }
+
+  componentDidMount () {
+    this.addMeetupsBatch()
   }
 
   getLat (event) {
@@ -49,16 +62,24 @@ class SavedMeetupsGlobe extends Component {
         <SEO title='Meetups' keywords={[`gatsby`, `application`, `react`]} />
         <MapContainer>
           <Scene>
-            <SpotLight id='main_light' intensity={5} position={{ x: 0, y: 0, z: 1 }} />
-            <Globe id='globe' imagePath='/images/1_earth_8k.jpg' radius={0.5} onTextured={this.globeReady} />
+            <SpotLight id='main_light' intensity={8} position={{ x: 0, y: 0, z: 45 }} />
+            <Globe
+              id='globe'
+              imagePath='/images/Albedo.jpg'
+              bumpPath='/images/Bump.jpg'
+              radius={30}
+              onTextured={this.globeReady}
+            />
             {this.state.globeReady &&
-              meetups.map(event => (
+              this.state.meetups.map(event => (
                 <GlobeMarker
                   key={event.id}
                   id={event.id}
                   globe='globe'
                   lat={this.getLat(event)}
                   lon={this.getLon(event)}
+                  radius={0.3}
+                  dropDistance={Math.random() * 8 + 16}
                 />
               ))
             }
