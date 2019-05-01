@@ -20,7 +20,7 @@ const MapContainer = styled.div`
 class SavedMeetupsGlobe extends Component {
   constructor (props) {
     super(props)
-    this.state = { globeReady: false, meetups: [] }
+    this.state = { globeReady: false, meetups: [], controlsEnabled: true }
   }
 
   addMeetupsBatch = () => {
@@ -56,13 +56,23 @@ class SavedMeetupsGlobe extends Component {
     this.setState({ globeReady: true })
   }
 
+  globeMarkerClicked (event, done) {
+    console.log('globe marker clicked', event)
+    this.setState({ controlsEnabled: false })
+    // Show dialogue for event
+    setTimeout(() => {
+      this.setState({ controlsEnabled: true })
+      done && done()
+    }, 6000)
+  }
+
   render () {
     return (
       <Layout>
         <SEO title='Meetups' keywords={[`gatsby`, `application`, `react`]} />
         <MapContainer>
-          <Scene>
-            <SpotLight id='main_light' intensity={8} position={{ x: 0, y: 0, z: 45 }} />
+          <Scene width='1000px' height='800px' controlsEnabled={this.state.controlsEnabled}>
+            <SpotLight id='main_light' intensity={8} distance={45} />
             <Globe
               id='globe'
               imagePath='/images/Albedo.jpg'
@@ -71,7 +81,7 @@ class SavedMeetupsGlobe extends Component {
               onTextured={this.globeReady}
             />
             {this.state.globeReady &&
-              this.state.meetups.map(event => (
+              this.state.meetups.map((event, index) => (
                 <GlobeMarker
                   key={event.id}
                   id={event.id}
@@ -80,6 +90,8 @@ class SavedMeetupsGlobe extends Component {
                   lon={this.getLon(event)}
                   radius={0.3}
                   dropDistance={Math.random() * 8 + 16}
+                  zIndex={index}
+                  onClick={(done) => this.globeMarkerClicked(event, done)}
                 />
               ))
             }
